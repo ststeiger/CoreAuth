@@ -28,30 +28,37 @@ namespace NiHaoCookie
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddAuthentication();
+            services.AddAuthentication(delegate(Microsoft.AspNetCore.Authentication.SharedAuthenticationOptions options) 
+                {
+                    // options.SignInScheme = "foo";
+                }    
+            );
 
             // Add framework services.
             // services.AddMvc();
-            services.AddMvc(delegate (Microsoft.AspNetCore.Mvc.MvcOptions config)
-            {
-                Microsoft.AspNetCore.Authorization.AuthorizationPolicy policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
-                                 .RequireAuthenticatedUser()
-                                 .Build();
+            services.AddMvc(
+                delegate (Microsoft.AspNetCore.Mvc.MvcOptions config)
+                {
+                    Microsoft.AspNetCore.Authorization.AuthorizationPolicy policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+                                     .RequireAuthenticatedUser()
+                                     .AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
+                                     .Build();
 
-                config.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
-            }
-          );
+                    config.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
+                }
+            );
 
+            // services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, NotBannedRequirement>();
         }
+
+        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-
-
+            
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
@@ -62,8 +69,10 @@ namespace NiHaoCookie
                 AutomaticChallenge = true,
                 CookieSecure = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
             });
+            
 
-
+            // app.UseBanHammer(new BanHammer { Jerks = new HashSet<string>() { "127.0.0.1", "0.0.0.1" } });
+            
 
             app.UseProtectFolder(new ProtectFolderOptions
             {

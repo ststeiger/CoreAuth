@@ -12,8 +12,6 @@ https://www.google.com/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=coo
 http://josephwoodward.co.uk/2015/05/ip-address-referral-blocking-in-asp-net-mvc/
 
 
-
-
 https://stackoverflow.com/questions/35461943/asp-net-mvc-6-cookie-authentication-authorization-fails
 
 
