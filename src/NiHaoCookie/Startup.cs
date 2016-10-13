@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.DataProtection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+
+
+
+using Microsoft.AspNetCore.DataProtection;
+
 
 namespace NiHaoCookie
 {
@@ -41,7 +48,7 @@ namespace NiHaoCookie
                 {
                     Microsoft.AspNetCore.Authorization.AuthorizationPolicy policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
                                      .RequireAuthenticatedUser()
-                                     .AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
+                                     //.AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
                                      .Build();
 
                     config.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
@@ -58,7 +65,10 @@ namespace NiHaoCookie
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            
+
+
+
+           
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
@@ -68,6 +78,19 @@ namespace NiHaoCookie
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
                 CookieSecure = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+
+               , CookieHttpOnly=false
+               // , DataProtectionProvider = null
+
+                //, DataProtectionProvider = new DataProtectionProvider(new System.IO.DirectoryInfo(@"c:\shared-auth-ticket-keys\"),
+                //delegate (DataProtectionConfiguration options)
+                //{
+                //    var op = new Microsoft.AspNet.DataProtection.AuthenticatedEncryption.AuthenticatedEncryptionOptions();
+                //    op.EncryptionAlgorithm = Microsoft.AspNet.DataProtection.AuthenticatedEncryption.EncryptionAlgorithm.AES_256_GCM:
+                //    options.UseCryptographicAlgorithms(op);
+                    
+                //}
+                //)
             });
             
 
