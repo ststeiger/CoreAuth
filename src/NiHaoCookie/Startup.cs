@@ -50,6 +50,9 @@ namespace NiHaoCookie
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+
+
+
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
                 AuthenticationScheme = "MyCookieMiddlewareInstance",
@@ -59,6 +62,15 @@ namespace NiHaoCookie
                 AutomaticChallenge = true,
                 CookieSecure = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
             });
+
+
+
+            app.UseProtectFolder(new ProtectFolderOptions
+            {
+                Path = "/Secret",
+                PolicyName = "Authenticated"
+            });
+
 
 
             if (env.IsDevelopment())
