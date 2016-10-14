@@ -34,6 +34,7 @@ namespace NiHaoCookie
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<Microsoft.AspNetCore.Http.IHttpContextAccessor, Microsoft.AspNetCore.Http.HttpContextAccessor>();
 
             services.AddAuthentication(delegate(Microsoft.AspNetCore.Authentication.SharedAuthenticationOptions options) 
                 {
@@ -48,7 +49,7 @@ namespace NiHaoCookie
                 {
                     Microsoft.AspNetCore.Authorization.AuthorizationPolicy policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
                                      .RequireAuthenticatedUser()
-                                     //.AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
+                                     .AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
                                      .Build();
 
                     config.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
@@ -58,17 +59,25 @@ namespace NiHaoCookie
             // services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, NotBannedRequirement>();
         }
 
-        
+
+        internal static IServiceProvider ServiceProvider { get; set; }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IServiceProvider svp)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
 
+            System.Web.HttpContext.Configure(app.ApplicationServices.
+                GetRequiredService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()
+            );
 
-           
+            ServiceProvider = svp;
+            System.Web2.HttpContext.ServiceProvider = svp;
+            System.Web2.Hosting.HostingEnvironment.m_IsHosted = true;
+            
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
