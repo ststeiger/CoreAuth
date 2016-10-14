@@ -22,7 +22,8 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.0.0",
     "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0",
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
-    "Microsoft.AspNet.DataProtection.Extensions": "1.0.0-rc1-final"
+    "Microsoft.AspNet.DataProtection.Extensions": "1.0.0-rc1-final",
+    "Novell.Directory.Ldap": "1.0.0-*"
   },
 
   "tools": {

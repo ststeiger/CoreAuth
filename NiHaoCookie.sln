@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NiHaoCookie", "src\NiHaoCookie\NiHaoCookie.xproj", "{299908A2-D0B0-448A-9526-D31FBD16D447}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Novell.Directory.Ldap", "src\Novell.Directory.Ldap\Novell.Directory.Ldap.xproj", "{B90D919B-AC7C-4990-A598-773D73173750}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,11 +24,16 @@ Global
 		{299908A2-D0B0-448A-9526-D31FBD16D447}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{299908A2-D0B0-448A-9526-D31FBD16D447}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{299908A2-D0B0-448A-9526-D31FBD16D447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B90D919B-AC7C-4990-A598-773D73173750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B90D919B-AC7C-4990-A598-773D73173750}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B90D919B-AC7C-4990-A598-773D73173750}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B90D919B-AC7C-4990-A598-773D73173750}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{299908A2-D0B0-448A-9526-D31FBD16D447} = {C06E892E-1774-43B7-A772-A18DBEC862D5}
+		{B90D919B-AC7C-4990-A598-773D73173750} = {C06E892E-1774-43B7-A772-A18DBEC862D5}
 	EndGlobalSection
 EndGlobal
