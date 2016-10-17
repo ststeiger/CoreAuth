@@ -1,11 +1,11 @@
 ﻿
-
 using Microsoft.AspNetCore.Authentication;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http.Authentication;
-using System;
+
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+
 
 namespace NiHaoCookie
 {
@@ -86,7 +86,7 @@ namespace NiHaoCookie
         private string MyProtect(AuthenticationTicket data, string purpose)
         {
             return "wadehadedudada";
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
 
 
