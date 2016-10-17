@@ -1,0 +1,2 @@
+
+http://www.mikesdotnetting.com/article/270/sessions-in-asp-net-core-1-0

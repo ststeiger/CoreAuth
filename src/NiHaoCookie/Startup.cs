@@ -1,8 +1,9 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNet.DataProtection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,24 +11,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 
-
-
-using Microsoft.AspNetCore.DataProtection;
-
-
 namespace NiHaoCookie
 {
+
+
     public class Startup
     {
+
+
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
+            IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
-        }
+        } // End Constructor 
+
 
         public IConfigurationRoot Configuration { get; }
 
@@ -36,7 +37,8 @@ namespace NiHaoCookie
         {
             services.AddSingleton<Microsoft.AspNetCore.Http.IHttpContextAccessor, Microsoft.AspNetCore.Http.HttpContextAccessor>();
 
-            services.AddAuthentication(delegate(Microsoft.AspNetCore.Authentication.SharedAuthenticationOptions options) 
+            services.AddAuthentication(
+                delegate(Microsoft.AspNetCore.Authentication.SharedAuthenticationOptions options) 
                 {
                     // options.SignInScheme = "foo";
                 }    
@@ -49,7 +51,7 @@ namespace NiHaoCookie
                 {
                     Microsoft.AspNetCore.Authorization.AuthorizationPolicy policy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
                                      .RequireAuthenticatedUser()
-                                     .AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
+                                     // .AddRequirements( new NoBannedIPsRequirement(new HashSet<string>() { "127.0.0.1", "0.0.0.1" } ))
                                      .Build();
 
                     config.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(policy));
@@ -57,14 +59,15 @@ namespace NiHaoCookie
             );
 
             // services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, NotBannedRequirement>();
-        }
+        } // End Sub ConfigureServices
 
 
         internal static IServiceProvider ServiceProvider { get; set; }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IServiceProvider svp)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env
+            , ILoggerFactory loggerFactory, IServiceProvider svp)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -77,34 +80,101 @@ namespace NiHaoCookie
             ServiceProvider = svp;
             System.Web2.HttpContext.ServiceProvider = svp;
             System.Web2.Hosting.HostingEnvironment.m_IsHosted = true;
-            
 
+
+
+            Microsoft.IdentityModel.Tokens.SecurityKey signingKey = null;
+
+            // var x = new System.Security.Cryptography.RSACryptoServiceProvider();
+            // Microsoft.IdentityModel.Tokens.RsaSecurityKey rsakew = new Microsoft.IdentityModel.Tokens.RsaSecurityKey(x);
+
+            Microsoft.IdentityModel.Tokens.SymmetricSecurityKey symkey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("Test"));
+
+            // signingKey = rsakew;
+            signingKey = symkey;
+
+            // var securityKey = new InMemorySymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes("sec"));
+
+            /*
+            var signingCredentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(securityKey,
+                            Microsoft.IdentityModel.Tokens.SecurityAlgorithms.RsaSha256Signature,
+                            Microsoft.IdentityModel.Tokens.SecurityAlgorithms.Sha256Digest);
+            */
+
+
+            //      System.IdentityModel.Tokens.SecurityKey
+            //System.IdentityModel.Tokens.AsymmetricSecurityKey
+            //System.IdentityModel.Tokens.SymmetricSecurityKey
+
+
+            //System.IdentityModel.Tokens.SymmetricSecurityKey
+            //       System.IdentityModel.Tokens.InMemorySymmetricSecurityKey
+
+            // System.IdentityModel.Tokens.AsymmetricSecurityKey
+            //       System.IdentityModel.Tokens.RsaSecurityKey
+            //       System.IdentityModel.Tokens.X509AsymmetricSecurityKey
+
+
+            var tokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            {
+                // The signing key must match!
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = signingKey,
+
+                // Validate the JWT Issuer (iss) claim
+                ValidateIssuer = true,
+                ValidIssuer = "ExampleIssuer",
+
+                // Validate the JWT Audience (aud) claim
+                ValidateAudience = true,
+                ValidAudience = "ExampleAudience",
+
+                // Validate the token expiry
+                ValidateLifetime = true,
+
+                // If you want to allow a certain amount of clock drift, set that here:
+                ClockSkew = TimeSpan.Zero
+                , 
+            };
+
+            app.UseJwtBearerAuthentication(new JwtBearerOptions
+            {
+                AutomaticAuthenticate = true,
+                AutomaticChallenge = true,
+                TokenValidationParameters = tokenValidationParameters
+                , 
+            });
+
+            
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
                 AuthenticationScheme = "MyCookieMiddlewareInstance",
+                CookieName = "SecurityByObscurityDoesntWork",
+                ExpireTimeSpan = new System.TimeSpan(15, 0, 0),
                 LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Unauthorized/"),
                 AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Forbidden/"),
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
-                CookieSecure = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
+                CookieSecure = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest,
+                CookieHttpOnly = false,
+                TicketDataFormat = new CustomJwtDataFormat("foo", tokenValidationParameters)
 
-               , CookieHttpOnly=false
-               // , DataProtectionProvider = null
+                // DataProtectionProvider = null,
 
-                //, DataProtectionProvider = new DataProtectionProvider(new System.IO.DirectoryInfo(@"c:\shared-auth-ticket-keys\"),
+                // DataProtectionProvider = new DataProtectionProvider(new System.IO.DirectoryInfo(@"c:\shared-auth-ticket-keys\"),
                 //delegate (DataProtectionConfiguration options)
                 //{
                 //    var op = new Microsoft.AspNet.DataProtection.AuthenticatedEncryption.AuthenticatedEncryptionOptions();
                 //    op.EncryptionAlgorithm = Microsoft.AspNet.DataProtection.AuthenticatedEncryption.EncryptionAlgorithm.AES_256_GCM:
                 //    options.UseCryptographicAlgorithms(op);
-                    
                 //}
-                //)
+                //),
             });
-            
+            /**/
+
 
             // app.UseBanHammer(new BanHammer { Jerks = new HashSet<string>() { "127.0.0.1", "0.0.0.1" } });
-            
+
 
             app.UseProtectFolder(new ProtectFolderOptions
             {
@@ -132,6 +202,11 @@ namespace NiHaoCookie
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-        }
-    }
-}
+
+        } // End Sub Configure 
+
+
+    } // End Class Startup 
+
+
+} // End Namespace NiHaoCookie 
