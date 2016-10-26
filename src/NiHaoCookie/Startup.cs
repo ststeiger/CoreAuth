@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace NiHaoCookie
 {
@@ -137,13 +138,21 @@ namespace NiHaoCookie
                 , 
             };
 
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
+
+            var bearerOptions = new JwtBearerOptions()
             {
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
                 TokenValidationParameters = tokenValidationParameters
-                , 
-            });
+            };
+
+
+
+            bearerOptions.SecurityTokenValidators.Clear();
+            bearerOptions.SecurityTokenValidators.Add(new MyTokenHandler());
+
+
+            app.UseJwtBearerAuthentication(bearerOptions);
 
             
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
