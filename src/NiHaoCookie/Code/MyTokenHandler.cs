@@ -114,7 +114,9 @@ namespace NiHaoCookie
             // validatedToken = new JwtSecurityToken(securityToken);
             try
             {
+                
                 tokenHandler.ValidateToken(securityToken, validationParameters, out validatedToken);
+                validatedToken = new JwtSecurityToken("jwtEncodedString");
             }
             catch (Exception ex)
             {
