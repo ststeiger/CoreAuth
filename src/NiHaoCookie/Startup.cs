@@ -134,8 +134,7 @@ namespace NiHaoCookie
                 ValidateLifetime = true,
 
                 // If you want to allow a certain amount of clock drift, set that here:
-                ClockSkew = TimeSpan.Zero
-                , 
+                ClockSkew = TimeSpan.Zero, 
             };
 
 
@@ -143,11 +142,11 @@ namespace NiHaoCookie
             {
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true,
-                TokenValidationParameters = tokenValidationParameters
+                TokenValidationParameters = tokenValidationParameters,
+                Events = new CustomBearerEvents()
             };
 
-
-
+            // Optional 
             bearerOptions.SecurityTokenValidators.Clear();
             bearerOptions.SecurityTokenValidators.Add(new MyTokenHandler());
 
