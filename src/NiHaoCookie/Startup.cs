@@ -15,6 +15,22 @@ using System.Security.Claims;
 namespace NiHaoCookie
 {
 
+    public class SmtpConfig
+    {
+        public string Server { get; set; }
+        public string User { get; set; }
+        public string Pass { get; set; }
+        public int Port { get; set; }
+    }
+
+
+    public class ConnectionString
+    {
+        public string name { get; set; }
+        public string connectionString { get; set; }
+        public string providerName { get; set; }
+    }
+
 
     public class Startup
     {
@@ -25,6 +41,7 @@ namespace NiHaoCookie
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("SmtpSettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
@@ -36,6 +53,50 @@ namespace NiHaoCookie
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // http://developer.telerik.com/featured/new-configuration-model-asp-net-core/
+            // services.Configure<SmtpConfig>(Configuration.GetSection("Smtp"));
+            Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<SmtpConfig>(services, Configuration.GetSection("Smtp"));
+
+            // Foo:
+            // Microsoft.Extensions.DependencyInjection.OptionsServiceCollectionExtensions.Configure<SmtpConfig>(services, Configuration.GetSection("Smtp"));
+
+
+            // https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-strings
+            // ////Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<ConnectionString[]>(services, Configuration.GetSection("conStrings"));
+
+            // https://stackoverflow.com/questions/31929482/retrieve-sections-from-config-json-in-asp-net-5
+            //var objectSections = Configuration.GetSection("conStringDictionary").GetChildren();
+            //foreach (var x in objectSections)
+            //{
+            //    System.Console.WriteLine(x.Key);
+            //    var cs = new ConnectionString();
+            //    ConfigurationBinder.Bind(x, cs);
+            //    System.Console.WriteLine(cs);
+            //}
+
+            // http://andrewlock.net/how-to-use-the-ioptions-pattern-for-configuration-in-asp-net-core-rc2/
+            Microsoft.Extensions.DependencyInjection.OptionsConfigurationServiceCollectionExtensions.Configure<Dictionary<string, ConnectionString>>(services, Configuration.GetSection("conStrings"));
+            
+
+
+
+
+
+
+        //var objects = objectSections.ToDictionary(x => x.Key, x =>
+        //{
+        //    var obj = new CustomObject();
+        //    ConfigurationBinder.Bind(x, obj);
+        //    return obj;
+        //});
+
+
+
+
+        string conString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(this.Configuration, System.Environment.MachineName);
+            System.Console.WriteLine(conString);
+
+
             services.AddSingleton<Microsoft.AspNetCore.Http.IHttpContextAccessor, Microsoft.AspNetCore.Http.HttpContextAccessor>();
 
             services.AddAuthentication(
